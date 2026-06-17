@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBC Executive Dashboard 2023–2026 · Read Only</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --void:#080e1f; --deep:#0d1529; --card:#121d35; --card2:#162040;
+  --rim:#1e2d52; --rim2:#28396b;
+  --indigo:#6366f1; --indigo2:#818cf8; --indigo3:#4338ca;
+  --emerald:#10b981; --emerald2:#34d399;
+  --amber:#f59e0b; --amber2:#fcd34d;
+  --sky:#38bdf8; --sky2:#7dd3fc;
+  --rose:#f43f5e; --rose2:#fb7185;
+  --t1:#f1f5f9; --t2:#cbd5e1; --t3:#94a3b8; --t4:#475569; --t5:#2a3d6a;
+  --display:'Syne',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:8px; --r2:12px; --r3:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--void);font-family:var(--body);color:var(--t2);min-height:100vh;overflow-x:hidden;user-select:none;-webkit-user-select:none;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 45% at 15% 0%,rgba(99,102,241,.09) 0%,transparent 55%),
+             radial-gradient(ellipse 50% 35% at 85% 100%,rgba(16,185,129,.06) 0%,transparent 55%);}
+#dash{position:relative;z-index:1;}
+.wrap{max-width:1480px;margin:0 auto;padding:26px 30px 52px;}
+
+/* Topbar */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--rim);position:relative;}
+.tb-eye{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--indigo2);margin-bottom:8px;text-transform:uppercase;}
+.tb-title{font-family:var(--display);font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-1px;line-height:1.15;margin-bottom:5px;}
+.tb-title em{color:var(--indigo2);font-style:normal;}
+.tb-sub{font-size:13px;color:var(--t3);}
+.tb-left{display:flex;align-items:flex-start;gap:0;}
+.tb-logo{height:48px;width:auto;object-fit:contain;flex-shrink:0;border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.25);}
+.tb-welcome{text-align:right;line-height:1.5;margin-right:4px;}
+.tb-welcome-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--t1);letter-spacing:.3px;}
+.tb-welcome-div{font-family:var(--mono);font-size:11px;color:var(--indigo2);letter-spacing:1px;margin-top:2px;}
+.tb-r{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:4px;}
+.badge{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.8px;}
+.badge-green{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);color:var(--emerald2);}
+.badge-rim{background:var(--card);border:1px solid var(--rim);color:var(--t3);}
+.badge-lock{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);color:var(--indigo2);font-weight:700;letter-spacing:2px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 7px var(--emerald);animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+/* Year Selector */
+.yr-wrap{margin-bottom:24px;}
+.yr-lbl{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--t4);margin-bottom:10px;text-transform:uppercase;}
+.yr-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.yr-tab{padding:9px 22px;border-radius:var(--r);border:1px solid var(--rim);background:var(--card);
+  font-family:var(--display);font-size:14px;font-weight:700;color:var(--t3);cursor:pointer;transition:all .22s;letter-spacing:.4px;}
+.yr-tab:hover{border-color:var(--indigo2);color:var(--indigo2);}
+.yr-tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff;box-shadow:0 4px 18px rgba(99,102,241,.42);}
+.yr-tab.all-tab{font-size:12px;letter-spacing:1px;background:rgba(99,102,241,.06);}
+.yr-tab.all-tab.active{background:var(--indigo);color:#fff;}
+
+/* Info Row */
+.info-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px;}
+.ic{background:var(--card);border:1px solid var(--rim);border-radius:var(--r2);padding:15px 17px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.ic::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--indigo),transparent);}
+.ic:hover{border-color:var(--indigo2);transform:translateY(-2px);}
+.ic-lbl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--t4);text-transform:uppercase;margin-bottom:7px;}
+.ic-val{font-family:var(--display);font-size:21px;font-weight:800;color:var(--indigo2);line-height:1;margin-bottom:3px;}
+.ic-val.sm{font-family:var(--body);font-size:13px;font-weight:600;color:var(--t2);}
+.ic-sub{font-size:11px;color:var(--t4);}
+
+/* KPI Row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.kc{border-radius:var(--r2);padding:22px 24px;position:relative;overflow:hidden;border:1px solid transparent;transition:transform .22s,box-shadow .22s;}
+.kc:hover{transform:translateY(-3px);}
+.kc1{background:linear-gradient(135deg,#1b2a4e,#141e3a);border-color:rgba(99,102,241,.28);}
+.kc2{background:linear-gradient(135deg,#0f2820,#0c2118);border-color:rgba(16,185,129,.28);}
+.kc3{background:linear-gradient(135deg,#281d0c,#211708);border-color:rgba(245,158,11,.28);}
+.kc4{background:linear-gradient(135deg,#0e2030,#0c1c28);border-color:rgba(56,189,248,.28);}
+.kc:hover.kc1{box-shadow:0 8px 32px rgba(99,102,241,.18);}
+.kc:hover.kc2{box-shadow:0 8px 32px rgba(16,185,129,.14);}
+.kc:hover.kc3{box-shadow:0 8px 32px rgba(245,158,11,.14);}
+.kc:hover.kc4{box-shadow:0 8px 32px rgba(56,189,248,.14);}
+.kc-lbl{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:11px;}
+.kc-val{font-family:var(--display);font-size:38px;font-weight:800;line-height:1;letter-spacing:-1.5px;margin-bottom:5px;}
+.kc1 .kc-val{color:var(--indigo2);} .kc2 .kc-val{color:var(--emerald2);} .kc3 .kc-val{color:var(--amber2);} .kc4 .kc-val{color:var(--sky2);}
+.kc-sub{font-size:12px;color:var(--t3);}
+.kc-grow{margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.07);font-family:var(--mono);font-size:11px;color:var(--t4);display:flex;align-items:center;gap:7px;}
+.kc-deco{position:absolute;right:16px;bottom:16px;width:64px;height:64px;pointer-events:none;opacity:.15;}
+.kc-deco svg{width:100%;height:100%;}
+.kc1 .kc-deco{color:var(--indigo);} .kc2 .kc-deco{color:var(--emerald);} .kc3 .kc-deco{color:var(--amber);} .kc4 .kc-deco{color:var(--sky);}
+
+/* User Metrics */
+.um-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.um{background:var(--card);border:1px solid var(--rim);border-radius:var(--r2);padding:17px 18px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.um:hover{transform:translateY(-2px);}
+.um::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.um:nth-child(1)::before{background:linear-gradient(90deg,var(--indigo),transparent);}
+.um:nth-child(2)::before{background:linear-gradient(90deg,var(--emerald),transparent);}
+.um:nth-child(3)::before{background:linear-gradient(90deg,var(--amber),transparent);}
+.um:nth-child(4)::before{background:linear-gradient(90deg,var(--sky),transparent);}
+.um-lbl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--t4);margin-bottom:10px;text-transform:uppercase;}
+.um-bars{display:flex;align-items:flex-end;gap:4px;height:44px;margin-bottom:10px;}
+.um-b{flex:1;border-radius:2px 2px 0 0;min-width:6px;transition:opacity .2s;}
+.um-val{font-family:var(--display);font-size:24px;font-weight:800;color:var(--t1);margin-bottom:4px;}
+.um-grow{font-family:var(--mono);font-size:11px;}
+
+/* Section heading */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sh-t{font-family:var(--display);font-size:13px;font-weight:700;color:var(--t2);letter-spacing:.4px;display:flex;align-items:center;gap:10px;}
+.sh-t::before{content:'';width:3px;height:15px;background:var(--indigo);border-radius:2px;}
+.sh-badge{font-family:var(--mono);font-size:10px;color:var(--t4);background:var(--card);border:1px solid var(--rim);padding:3px 10px;border-radius:12px;letter-spacing:.8px;}
+
+/* Panel */
+.panel{background:var(--deep);border:1px solid var(--rim);border-radius:var(--r2);padding:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.ph{font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.ph::before{content:'';width:3px;height:12px;background:var(--indigo);border-radius:2px;}
+
+/* Chart grid */
+.main-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:20px;}
+.bar-col{grid-column:1/3;} .tbl-col{grid-column:1/3;}
+.chart-h{flex:1;min-height:280px;position:relative;}
+.donut-h{height:250px;position:relative;display:flex;align-items:center;justify-content:center;}
+.dc{position:absolute;text-align:center;pointer-events:none;}
+.dc-v{font-family:var(--display);font-size:22px;font-weight:800;color:var(--t1);}
+.dc-l{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:1.5px;margin-top:2px;}
+
+/* Legend */
+.leg{margin-top:14px;display:flex;flex-direction:column;gap:5px;}
+.li{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);background:rgba(255,255,255,.02);border:1px solid var(--rim);transition:background .15s;}
+.li:hover{background:rgba(99,102,241,.06);}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.ln{flex:1;font-size:13px;font-weight:600;color:var(--t2);}
+.lp{font-family:var(--mono);font-size:11px;color:var(--t4);}
+.lv{font-family:var(--mono);font-size:11px;color:var(--indigo2);min-width:70px;text-align:right;}
+
+/* Table */
+.ts{overflow-x:auto;} .ts::-webkit-scrollbar{height:3px;} .ts::-webkit-scrollbar-thumb{background:var(--rim);}
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt thead tr{background:rgba(99,102,241,.12);border-bottom:1px solid var(--rim2);}
+.dt th{font-family:var(--mono);font-size:12px;letter-spacing:.8px;color:var(--t2);padding:12px 13px;text-align:right;white-space:nowrap;font-weight:600;}
+.dt th:first-child{text-align:left;}
+.dt tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.dt tbody tr:hover{background:rgba(99,102,241,.05);}
+.dt td{padding:11px 13px;text-align:right;color:var(--t2);font-size:13px;}
+.dt td:first-child{text-align:left;color:var(--t1);font-weight:700;font-size:14px;}
+.dt .tot td{color:var(--indigo2);font-family:var(--mono);font-size:12px;font-weight:600;background:rgba(99,102,241,.08);border-top:1px solid rgba(99,102,241,.22);}
+.mb{width:56px;height:4px;background:rgba(99,102,241,.1);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.mf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2));}
+
+/* Trend */
+.trend-h{height:240px;position:relative;}
+.yoy-tabs{display:flex;gap:6px;}
+.yoy-tab{padding:6px 16px;border-radius:16px;border:1px solid var(--rim);background:var(--card);font-family:var(--body);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.yoy-tab:hover{border-color:var(--indigo2);color:var(--indigo2);}
+.yoy-tab.active{background:var(--indigo);border-color:var(--indigo);color:#fff;}
+
+/* YoY table */
+.yoy{width:100%;border-collapse:collapse;font-size:12px;}
+.yoy thead tr{background:rgba(99,102,241,.12);}
+.yoy th{font-family:var(--mono);font-size:12px;letter-spacing:.8px;color:var(--t2);padding:11px 10px;text-align:right;border-bottom:1px solid var(--rim2);font-weight:600;}
+.yoy th:first-child{text-align:left;}
+.yoy td{padding:8px 10px;text-align:right;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.03);}
+.yoy td:first-child{text-align:left;font-size:13px;font-weight:700;color:var(--t1);}
+.yoy .ytot td{background:rgba(99,102,241,.07);font-family:var(--mono);font-size:11px;color:var(--indigo2);font-weight:600;border-top:1px solid rgba(99,102,241,.2);}
+.cup{color:var(--emerald2);font-family:var(--mono);font-size:11px;font-weight:600;}
+.cdn{color:var(--rose2);font-family:var(--mono);font-size:11px;font-weight:600;}
+.cna{color:var(--t4);font-family:var(--mono);font-size:11px;}
+
+/* Bottom row */
+.bot-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.rank-list{display:flex;flex-direction:column;gap:6px;}
+.ri{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.02);border-left:2px solid var(--rim);border-radius:0 var(--r) var(--r) 0;transition:border-color .2s,background .2s;}
+.ri:hover{background:rgba(99,102,241,.06);}
+.rn{font-family:var(--mono);font-size:11px;width:20px;font-weight:700;}
+.rl{flex:1;font-size:13px;font-weight:600;color:var(--t2);}
+.rv{font-family:var(--mono);font-size:12px;color:var(--indigo2);}
+.rp{font-family:var(--mono);font-size:10px;color:var(--t4);width:36px;text-align:right;}
+.rank-tot{padding:15px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.22);border-radius:var(--r);margin-top:10px;}
+.ftl{font-family:var(--mono);font-size:10px;color:var(--t4);letter-spacing:1.5px;margin-bottom:5px;}
+.ftv{font-family:var(--display);font-size:24px;font-weight:800;color:var(--indigo2);}
+.fts{font-family:var(--mono);font-size:10px;color:var(--t4);margin-top:4px;}
+.amber-tot .ftv{color:var(--amber2);}
+
+/* Heatmap */
+.hm-grid{display:grid;gap:5px;}
+.hm-hd{font-family:var(--mono);font-size:12px;color:var(--t2);letter-spacing:.6px;padding:8px 4px;text-align:center;font-weight:600;}
+.hm-lbl{font-size:12px;font-weight:600;color:var(--t2);padding:5px 0;display:flex;align-items:center;}
+.hm-c{border-radius:4px;padding:7px 5px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;transition:transform .15s;cursor:default;}
+.hm-c:hover{transform:scale(1.06);}
+
+/* Footer */
+footer{padding-top:18px;border-top:1px solid var(--rim);display:flex;justify-content:space-between;align-items:center;}
+.ft-l{font-family:var(--display);font-size:12px;font-weight:700;color:var(--t4);letter-spacing:1px;}
+.ft-r{font-family:var(--mono);font-size:11px;color:var(--t4);text-align:right;line-height:1.9;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:3px;} ::-webkit-scrollbar-thumb:hover{background:var(--indigo);}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.kc{animation:fadeUp .42s ease-out both;}
+.kc:nth-child(1){animation-delay:.04s} .kc:nth-child(2){animation-delay:.08s}
+.kc:nth-child(3){animation-delay:.12s} .kc:nth-child(4){animation-delay:.16s}
+.ic,.um,.panel{animation:fadeUp .48s ease-out both;animation-delay:.2s;}
+
+@media print{body::after{content:'🔒 Dokumen ini tidak untuk dicetak.';display:block;text-align:center;padding:40px;}#dash{display:none!important;}}
+</style>
+</head>
+<body>
+<div id="dash">
+<div class="wrap">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="tb-eye">Executive Intelligence Dashboard · Read Only</div>
+        <div class="tb-title">IBC <em>Command Center</em></div>
+        <div class="tb-sub">Summary TRX IBC 2023–Juni 2026</div>
+      </div>
+    </div>
+    <div class="tb-r">
+      <img class="tb-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXgAAAD0CAYAAACRmD2xAABbd0lEQVR4nO29d3wc13Wv/5x3ZndRSbD33qtISqJ675ZkuUhuknuPkzhOcnPj3Nz8fBMnceL4xvXakptkW5Yly7JkdckqVi+kxC72XkCCJHrZ3Zl3ZndRSbD33qtISqTA3ZlZnffMd87OOf/9nR5CIiIivbZtQW7MCbohh8PhcBgKIXg/IIPXhB0Oh8PhGEjwE7InXRB4J+4Oh8NxcJBC6B41gHP/2OHEHYfD4dh3SCGU7lFDB07gHQ6HY98hhNC9RwocOIF3OByOfYcQQvdYoQMn8A6Hw7HvEEKoYSwHDpzAOxwOx75DCKF7jNiBE3iHw+HYdwghdK8VO3Di/wcAAP//r3y/CAAAAA==" alt="bank bjb" onerror="this.style.display='none'">
+      <div class="tb-welcome">
+        <div class="tb-welcome-name">Welcome, Bpk. Arfandy</div>
+        <div class="tb-welcome-div">Divisi Digital &amp; Transaction Banking</div>
+      </div>
+      <div class="badge badge-green"><div class="dot"></div>DATA AKTIF</div>
+      <div class="badge badge-rim" id="periodBadge">2023–2026</div>
+      <div class="badge badge-lock">🔒 VIEW ONLY</div>
+    </div>
+  </div>
+
+  <!-- Year Selector -->
+  <div class="yr-wrap">
+    <div class="yr-lbl">Pilih Tahun Analisis</div>
+    <div class="yr-tabs" id="yrTabs"></div>
+  </div>
+
+  <!-- Info Row -->
+  <div class="info-row" id="infoRow"></div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- User Metrics -->
+  <div class="sh"><div class="sh-t">Pertumbuhan Nasabah &amp; Pengguna</div><div class="sh-badge" id="umBadge">2023–2026</div></div>
+  <div class="um-row" id="umRow"></div>
+
+  <!-- Charts -->
+  <div class="sh"><div class="sh-t">Analisis Volume &amp; Nominal Transaksi per Layanan</div></div>
+  <div class="main-grid">
+    <div class="panel bar-col">
+      <div class="ph">Jumlah Transaksi &amp; Nominal Transaksi per Layanan</div>
+      <div class="chart-h"><canvas id="barC"></canvas></div>
+    </div>
+    <div class="panel donut-col">
+      <div class="ph">Distribusi Jumlah Transaksi</div>
+      <div class="donut-h">
+        <canvas id="donutC" style="max-height:245px;"></canvas>
+        <div class="dc"><div class="dc-v" id="dcVal">—</div><div class="dc-l">LAYANAN</div></div>
+      </div>
+      <div class="leg" id="legEl"></div>
+    </div>
+    <div class="panel tbl-col">
+      <div class="ph">Detail Per Layanan</div>
+      <div class="ts"><table class="dt">
+        <thead><tr>
+          <th>Layanan</th><th>Jumlah Transaksi</th><th>Nominal Transaksi (IDR)</th>
+          <th>FBI (IDR)</th><th>% Jumlah TRX</th><th>Bar</th>
+        </tr></thead>
+        <tbody id="dtBody"></tbody>
+      </table></div>
+    </div>
+    <div class="panel donut-col">
+      <div class="ph">Distribusi Nominal Transaksi</div>
+      <div class="donut-h">
+        <canvas id="donutN" style="max-height:245px;"></canvas>
+        <div class="dc"><div class="dc-v" id="dcValN">—</div><div class="dc-l">LAYANAN</div></div>
+      </div>
+      <div class="leg" id="legElN"></div>
+    </div>
+  </div>
+
+  <!-- Trend -->
+  <div class="sh"><div class="sh-t">Tren Multi-Tahun</div></div>
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="ph">Tren Kumulatif 2023–2026</div>
+    <div class="trend-h"><canvas id="trendC"></canvas></div>
+  </div>
+
+  <!-- YoY -->
+  <div class="sh">
+    <div class="sh-t">Pertumbuhan YoY per Layanan (%)</div>
+    <div class="yoy-tabs" id="yoyTabs"></div>
+  </div>
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="ts" id="yoyWrap"></div>
+  </div>
+
+  <!-- Rankings -->
+  <div class="sh"><div class="sh-t">Ranking Jumlah Transaksi, Nominal Transaksi dan FBI</div></div>
+  <div class="bot-row">
+    <div class="panel"><div class="ph">Ranking Jumlah Transaksi</div><div class="rank-list" id="rankTrxEl"></div></div>
+    <div class="panel"><div class="ph">Ranking Nominal Transaksi</div><div class="rank-list" id="rankEl"></div></div>
+    <div class="panel"><div class="ph">Ranking Fee Based Income (FBI)</div><div class="rank-list" id="fbiEl"></div></div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="sh">
+    <div class="sh-t">Heatmap Kontribusi Layanan</div>
+    <div class="yoy-tabs" id="hmTabs"></div>
+  </div>
+  <div class="panel" style="margin-bottom:20px;"><div id="hmEl"></div></div>
+
+  <footer>
+    <div class="ft-l">IBC ANALYTICS · EXECUTIVE EDITION · READ ONLY</div>
+    <div class="ft-r" id="ftInfo"></div>
+  </footer>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// EMBEDDED DATA — Summary TRX IBC 2023–Juni 2026
+// ══════════════════════════════════════════════════════
+const G = {
+  fname: 'Summary TRX IBC 2023–Juni 2026',
+  allYrs: ['2023','2024','2025','2026'],
+  meta: {
+    '2023': {tahun:'2023', periode:'Januari–Desember 2023', corp:10427, rek:28375, uid:64356,  tok:32295},
+    '2024': {tahun:'2024', periode:'Januari–Desember 2024', corp:12914, rek:35245, uid:86213,  tok:37952},
+    '2025': {tahun:'2025', periode:'Januari–Desember 2025', corp:14720, rek:38497, uid:98924,  tok:41376},
+    '2026': {tahun:'2026', periode:'Januari–Juni 2026',     corp:15547, rek:40025, uid:104039, tok:43469}
+  },
+  svcs: [
+    {name:'Bill Payment', yr:{
+      '2023':{trx:889859,  fbi:0,          nom:684263018635},
+      '2024':{trx:1311852, fbi:0,          nom:2056384345555},
+      '2025':{trx:1139153, fbi:0,          nom:2199495053240},
+      '2026':{trx:360514,  fbi:0,          nom:1223611510244}
+    }},
+    {name:'Online', yr:{
+      '2023':{trx:332754,  fbi:2162901000, nom:1494295184424},
+      '2024':{trx:431200,  fbi:2802800000, nom:3948629984525},
+      '2025':{trx:495168,  fbi:3218592000, nom:4858265432117},
+      '2026':{trx:243706,  fbi:1584089000, nom:3342407497459}
+    }},
+    {name:'Overbooking', yr:{
+      '2023':{trx:2809439, fbi:0,          nom:16933849841923},
+      '2024':{trx:3060478, fbi:0,          nom:29633905800193},
+      '2025':{trx:3180662, fbi:0,          nom:32907440627182},
+      '2026':{trx:1304467, fbi:0,          nom:11699947303403}
+    }},
+    {name:'Payment VA', yr:{
+      '2023':{trx:44189,   fbi:0,          nom:3605770727},
+      '2024':{trx:153881,  fbi:0,          nom:779164502885},
+      '2025':{trx:129037,  fbi:0,          nom:1018915451054},
+      '2026':{trx:52779,   fbi:0,          nom:432903941301}
+    }},
+    {name:'Payroll', yr:{
+      '2023':{trx:59540,   fbi:0,          nom:1349966649742},
+      '2024':{trx:66076,   fbi:0,          nom:4347946926282},
+      '2025':{trx:69228,   fbi:0,          nom:5443590149072},
+      '2026':{trx:28439,   fbi:0,          nom:2317466414112}
+    }},
+    {name:'RTGS', yr:{
+      '2023':{trx:22632,   fbi:677645000,  nom:13599295527654},
+      '2024':{trx:26627,   fbi:797665000,  nom:17933376221800},
+      '2025':{trx:26902,   fbi:805425000,  nom:27835950560589},
+      '2026':{trx:1238,    fbi:37080000,   nom:1449700640330}
+    }},
+    {name:'SIPKD', yr:{
+      '2023':{trx:728148,  fbi:0,          nom:1308005002940},
+      '2024':{trx:1491874, fbi:0,          nom:4259702909824},
+      '2025':{trx:1438929, fbi:0,          nom:3722904514505},
+      '2026':{trx:409920,  fbi:0,          nom:624624278154}
+    }},
+    {name:'SISKEUDES', yr:{
+      '2023':{trx:0,       fbi:0,          nom:0},
+      '2024':{trx:0,       fbi:0,          nom:0},
+      '2025':{trx:107211,  fbi:0,          nom:642059442871},
+      '2026':{trx:43774,   fbi:0,          nom:130453730052}
+    }},
+    {name:'SKN', yr:{
+      '2023':{trx:190585,  fbi:548326200,  nom:911022042882},
+      '2024':{trx:189678,  fbi:549996600,  nom:2217772063051},
+      '2025':{trx:193135,  fbi:560068300,  nom:2268019073250},
+      '2026':{trx:15267,   fbi:44268500,   nom:311927256452}
+    }}
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+const CLR=['#6366f1','#10b981','#f59e0b','#38bdf8','#f43f5e','#a78bfa','#34d399','#fcd34d','#7dd3fc','#fb7185','#818cf8','#6ee7b7'];
+let barI=null, donutI=null, donutNI=null, trendI=null;
+const N  = n => {const v=Number(n);return isNaN(v)?0:v;};
+const fmt= n => Math.ceil(Number(n)).toLocaleString('id-ID');
+const fB = n => {
+  n=N(n); if(!n) return '—';
+  if(n>=1e12) return (n/1e12).toFixed(2)+' T';
+  if(n>=1e9)  return (n/1e9).toFixed(2)+' M';
+  if(n>=1e6)  return (n/1e6).toFixed(1)+' Jt';
+  return fmt(n);
+};
+const pct= (a,b) => (!b||b===0)?null:((a-b)/b*100);
+const pF = v => v===null?'—':(v>=0?'+':'')+v.toFixed(1)+'%';
+const gc = v => v===null?'cna':v>=0?'cup':'cdn';
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+function render(selYr){
+  window._currentYr = selYr;
+  const {svcs,allYrs,meta,fname} = G;
+  const isAll = selYr==='ALL';
+  const viewYrs = isAll ? allYrs : [selYr];
+  const lastYr  = allYrs[allYrs.length-1];
+  const compYr  = isAll ? null : (allYrs[allYrs.indexOf(selYr)-1]||null);
+  const metaYr  = isAll ? lastYr : selYr;
+
+  // Year tabs
+  document.getElementById('yrTabs').innerHTML =
+    `<div class="yr-tab all-tab ${isAll?'active':''}" onclick="render('ALL')">Semua Tahun</div>`+
+    allYrs.map(yr=>`<div class="yr-tab ${selYr===yr?'active':''}" onclick="render('${yr}')">${yr}</div>`).join('');
+
+  const periodStr = isAll ? allYrs[0]+' – '+lastYr : (meta[selYr]?.periode||selYr);
+  document.getElementById('periodBadge').textContent = periodStr;
+
+  // Aggregate
+  const agg = svcs.map(s=>{
+    let trx=0,nom=0,fbi=0;
+    viewYrs.forEach(yr=>{trx+=s.yr[yr]?.trx||0; nom+=s.yr[yr]?.nom||0; fbi+=s.yr[yr]?.fbi||0;});
+    return {...s,trx,nom,fbi};
+  });
+  const GT = {
+    trx:agg.reduce((s,x)=>s+x.trx,0),
+    nom:agg.reduce((s,x)=>s+x.nom,0),
+    fbi:agg.reduce((s,x)=>s+x.fbi,0)
+  };
+
+  // Info row
+  const m = meta[metaYr]||{};
+  const rangeStr = `${allYrs[0]}→${lastYr}`;
+  const infoItems=[
+    {lbl:'Tahun',        val:isAll?rangeStr:m.tahun||'—', sub:'Periode Data',       sm:false},
+    {lbl:'Periode',      val:isAll?rangeStr:(m.periode||periodStr), sub:'Rentang Laporan', sm:true},
+    {lbl:'Corporate ID', val:fmt(m.corp||0), sub:isAll?`Posisi ${lastYr}`:'Nasabah Korporat'},
+    {lbl:'No Rekening',  val:fmt(m.rek||0),  sub:isAll?`Posisi ${lastYr}`:'Rekening Aktif'},
+    {lbl:'User ID',      val:fmt(m.uid||0),  sub:isAll?`Posisi ${lastYr}`:'Pengguna Terdaftar'},
+    {lbl:'Token',        val:fmt(m.tok||0),  sub:isAll?`Posisi ${lastYr}`:'Token Aktif'},
+  ];
+  document.getElementById('infoRow').innerHTML = infoItems.map(x=>`
+    <div class="ic">
+      <div class="ic-lbl">${x.lbl}</div>
+      <div class="ic-val${x.sm?' sm':''}">${x.val}</div>
+      <div class="ic-sub">${x.sub}</div>
+    </div>`).join('');
+
+  // KPI Cards
+  const prevTrx=compYr?svcs.reduce((s,x)=>s+(x.yr[compYr]?.trx||0),0):null;
+  const prevNom=compYr?svcs.reduce((s,x)=>s+(x.yr[compYr]?.nom||0),0):null;
+  const prevFbi=compYr?svcs.reduce((s,x)=>s+(x.yr[compYr]?.fbi||0),0):null;
+  const gTrx=pct(GT.trx,prevTrx), gNom=pct(GT.nom,prevNom), gFbi=pct(GT.fbi,prevFbi);
+
+  document.getElementById('kpiRow').innerHTML=`
+    <div class="kc kc1">
+      <div class="kc-lbl">Total Transaksi</div>
+      <div class="kc-val">${fB(GT.trx)}</div>
+      <div class="kc-sub">${fmt(GT.trx)} transaksi</div>
+      <div class="kc-grow">${compYr?`vs ${compYr}:`:'Kumulatif '} <span class="${gc(gTrx)}">${pF(gTrx)}</span></div>
+      <div class="kc-deco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div>
+    </div>
+    <div class="kc kc2">
+      <div class="kc-lbl">Total Nominal</div>
+      <div class="kc-val">${fB(GT.nom)}</div>
+      <div class="kc-sub">IDR ${fmt(GT.nom)}</div>
+      <div class="kc-grow">${compYr?`vs ${compYr}:`:'Kumulatif '} <span class="${gc(gNom)}">${pF(gNom)}</span></div>
+      <div class="kc-deco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></div>
+    </div>
+    <div class="kc kc3">
+      <div class="kc-lbl">Fee Based Income</div>
+      <div class="kc-val">${fB(GT.fbi)}</div>
+      <div class="kc-sub">IDR ${fmt(GT.fbi)}</div>
+      <div class="kc-grow">${compYr?`vs ${compYr}:`:'Kumulatif '} <span class="${gc(gFbi)}">${pF(gFbi)}</span></div>
+      <div class="kc-deco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+    </div>
+    <div class="kc kc4">
+      <div class="kc-lbl">Layanan Aktif</div>
+      <div class="kc-val">${agg.filter(s=>s.trx>0).length}</div>
+      <div class="kc-sub">dari ${svcs.length} kategori · ${viewYrs.length} periode</div>
+      <div class="kc-grow"><span class="cna">${viewYrs.join(' · ')}</span></div>
+      <div class="kc-deco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+    </div>`;
+
+  // User Metrics
+  document.getElementById('umBadge').textContent = isAll ? allYrs.join('–') : selYr;
+  const umFields=[
+    {k:'corp',lbl:'Corporate ID',clr:CLR[0]},
+    {k:'rek', lbl:'No Rekening', clr:CLR[1]},
+    {k:'uid', lbl:'User ID',     clr:CLR[2]},
+    {k:'tok', lbl:'Token',       clr:CLR[3]},
+  ];
+  document.getElementById('umRow').innerHTML=umFields.map(f=>{
+    const vals=allYrs.map(yr=>meta[yr]?.[f.k]||0);
+    const maxV=Math.max(...vals,1);
+    const cur=meta[metaYr]?.[f.k]||0;
+    const prev=compYr?(meta[compYr]?.[f.k]||0):null;
+    const g=pct(cur,prev);
+    const bars=vals.map((v,i)=>`<div class="um-b" style="height:${Math.round(v/maxV*42)+2}px;background:${f.clr}${allYrs[i]===metaYr?'':'55'};"></div>`).join('');
+    return `<div class="um">
+      <div class="um-lbl">${f.lbl}</div>
+      <div class="um-bars">${bars}</div>
+      <div class="um-val">${fmt(cur)}</div>
+      <div class="um-grow ${gc(g)}">${g!==null?(g>=0?'↑':'↓')+Math.abs(g).toFixed(1)+'%':''} ${prev!==null?`vs ${compYr}`:(isAll?allYrs[0]+'→'+lastYr:'')}</div>
+    </div>`;
+  }).join('');
+
+  // Bar Chart
+  if(barI)barI.destroy();
+  const sorted=[...agg].filter(s=>s.trx>0).sort((a,b)=>b.trx-a.trx);
+  barI=new Chart(document.getElementById('barC').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:sorted.map(s=>s.name),
+      datasets:[
+        {label:'Transaksi',data:sorted.map(s=>s.trx),backgroundColor:CLR.map(c=>c+'30'),borderColor:CLR,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
+        {label:'Nominal (T IDR)',data:sorted.map(s=>+(s.nom/1e12).toFixed(2)),type:'line',borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.07)',borderWidth:2.5,pointBackgroundColor:'#f59e0b',pointRadius:4,tension:.4,fill:true,yAxisID:'y2'},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#94a3b8',font:{family:'Inter',size:12,weight:'600'},boxWidth:12,padding:16}},
+        tooltip:{backgroundColor:'#0d1529',borderColor:'#1e2d52',borderWidth:1,titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:12,titleFont:{size:13,weight:'700'},
+          callbacks:{label:ctx=>ctx.datasetIndex===0?` ${fmt(ctx.parsed.y)} TRX`:` ${ctx.parsed.y.toFixed(2)} T IDR`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#475569',font:{family:'Inter',size:11,weight:'600'}}},
+        y1:{position:'left',grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},callback:v=>v>=1e6?(v/1e6).toFixed(0)+'M':v}},
+        y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},callback:v=>v.toFixed(1)+'T'}}
+      }
+    }
+  });
+
+  // Donut TRX
+  if(donutI)donutI.destroy();
+  donutI=new Chart(document.getElementById('donutC').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:agg.map(s=>s.name),datasets:[{data:agg.map(s=>s.trx),backgroundColor:CLR.map(c=>c+'28'),borderColor:CLR,borderWidth:2,hoverBackgroundColor:CLR.map(c=>c+'55')}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'72%',
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d1529',borderColor:'#1e2d52',borderWidth:1,titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:12,
+        callbacks:{label:ctx=>` ${fmt(ctx.parsed)} (${(ctx.parsed/GT.trx*100).toFixed(1)}%)`}}}}
+  });
+  document.getElementById('dcVal').textContent=agg.filter(s=>s.trx>0).length+' SVC';
+  const legEl=document.getElementById('legEl');legEl.innerHTML='';
+  agg.filter(s=>s.trx>0).forEach((s,i)=>{
+    const p=(s.trx/GT.trx*100).toFixed(1);
+    legEl.innerHTML+=`<div class="li"><div class="ld" style="background:${CLR[i]};box-shadow:0 0 5px ${CLR[i]}44"></div><span class="ln">${s.name}</span><span class="lp">${p}%</span><span class="lv">${fmt(s.trx)}</span></div>`;
+  });
+
+  // Donut Nominal
+  if(donutNI)donutNI.destroy();
+  donutNI=new Chart(document.getElementById('donutN').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:agg.map(s=>s.name),datasets:[{data:agg.map(s=>s.nom),backgroundColor:CLR.map(c=>c+'28'),borderColor:CLR,borderWidth:2,hoverBackgroundColor:CLR.map(c=>c+'55')}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'72%',
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d1529',borderColor:'#1e2d52',borderWidth:1,titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:12,
+        callbacks:{label:ctx=>` ${fB(ctx.parsed)} (${(ctx.parsed/GT.nom*100).toFixed(1)}%)`}}}}
+  });
+  document.getElementById('dcValN').textContent=agg.filter(s=>s.nom>0).length+' SVC';
+  const legElN=document.getElementById('legElN');legElN.innerHTML='';
+  agg.filter(s=>s.nom>0).forEach((s,i)=>{
+    const p=(s.nom/GT.nom*100).toFixed(1);
+    legElN.innerHTML+=`<div class="li"><div class="ld" style="background:${CLR[i]};box-shadow:0 0 5px ${CLR[i]}44"></div><span class="ln">${s.name}</span><span class="lp">${p}%</span><span class="lv">${fB(s.nom)}</span></div>`;
+  });
+
+  // Detail table
+  const tb=document.getElementById('dtBody');tb.innerHTML='';
+  sorted.forEach(s=>{
+    const p=(s.trx/GT.trx*100).toFixed(1);
+    tb.innerHTML+=`<tr>
+      <td>${s.name}</td><td>${fmt(s.trx)}</td><td>${fB(s.nom)}</td>
+      <td style="color:${s.fbi>0?'var(--amber2)':'var(--t4)'}">${s.fbi>0?fB(s.fbi):'—'}</td>
+      <td>${p}%</td>
+      <td style="text-align:right;padding-right:14px"><div class="mb"><div class="mf" style="width:${Math.max(Number(p),.5)}%"></div></div></td>
+    </tr>`;
+  });
+  tb.innerHTML+=`<tr class="tot"><td>Grand Total</td><td>${fmt(GT.trx)}</td><td>${fB(GT.nom)}</td><td style="color:var(--amber2)">${fB(GT.fbi)}</td><td>100%</td><td></td></tr>`;
+
+  // Trend Chart
+  if(trendI)trendI.destroy();
+  const td=allYrs.map(yr=>({yr,trx:svcs.reduce((s,x)=>s+(x.yr[yr]?.trx||0),0),nom:svcs.reduce((s,x)=>s+(x.yr[yr]?.nom||0),0),fbi:svcs.reduce((s,x)=>s+(x.yr[yr]?.fbi||0),0)}));
+  trendI=new Chart(document.getElementById('trendC').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:td.map(d=>d.yr),
+      datasets:[
+        {label:'Transaksi',data:td.map(d=>d.trx),borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.09)',borderWidth:2.5,pointBackgroundColor:'#6366f1',pointRadius:5,tension:.4,fill:true,yAxisID:'y1'},
+        {label:'Nominal (T IDR)',data:td.map(d=>+(d.nom/1e12).toFixed(2)),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.07)',borderWidth:2.5,pointBackgroundColor:'#10b981',pointRadius:5,tension:.4,fill:false,yAxisID:'y2'},
+        {label:'FBI (M IDR)',data:td.map(d=>+(d.fbi/1e9).toFixed(2)),borderColor:'#f59e0b',backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:'#f59e0b',pointRadius:4,tension:.4,yAxisID:'y2'},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#94a3b8',font:{family:'Inter',size:11,weight:'600'},boxWidth:10,padding:14}},
+        tooltip:{backgroundColor:'#0d1529',borderColor:'#1e2d52',borderWidth:1,titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:12,titleFont:{size:13,weight:'700'}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:11,weight:'600'}}},
+        y1:{position:'left',grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},callback:v=>v>=1e6?(v/1e6).toFixed(0)+'M':v}},
+        y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}}}
+      }
+    }
+  });
+
+  // YoY
+  window._yoyActive = window._yoyActive||'trx';
+  const yoyFields=[{key:'trx',label:'Jumlah Transaksi'},{key:'nom',label:'Nominal Transaksi'},{key:'fbi',label:'FBI'}];
+  document.getElementById('yoyTabs').innerHTML=yoyFields.map(f=>`<div class="yoy-tab ${window._yoyActive===f.key?'active':''}" onclick="setYoyTab('${f.key}')">${f.label}</div>`).join('');
+  buildYoyTable(window._yoyActive);
+
+  function buildYoyTable(field){
+    let h=`<table class="yoy"><thead><tr><th>Layanan</th>${Array.from({length:allYrs.length-1},(_,i)=>`<th>${allYrs[i]}→${allYrs[i+1]}</th>`).join('')}</tr></thead><tbody>`;
+    svcs.forEach(s=>{
+      h+=`<tr><td>${s.name}</td>`;
+      for(let i=0;i<allYrs.length-1;i++){const g=pct(s.yr[allYrs[i+1]]?.[field]||0,s.yr[allYrs[i]]?.[field]||0);h+=`<td><span class="${gc(g)}">${pF(g)}</span></td>`;}
+      h+=`</tr>`;
+    });
+    h+=`<tr class="ytot"><td>TOTAL</td>`;
+    for(let i=0;i<allYrs.length-1;i++){const c=svcs.reduce((s,x)=>s+(x.yr[allYrs[i+1]]?.[field]||0),0),p=svcs.reduce((s,x)=>s+(x.yr[allYrs[i]]?.[field]||0),0);h+=`<td><span class="${gc(pct(c,p))}">${pF(pct(c,p))}</span></td>`;}
+    h+=`</tr></tbody></table>`;
+    document.getElementById('yoyWrap').innerHTML=h;
+  }
+  window.setYoyTab=function(field){
+    window._yoyActive=field;
+    document.querySelectorAll('#yoyTabs .yoy-tab').forEach(el=>el.classList.remove('active'));
+    event.target.classList.add('active');
+    buildYoyTable(field);
+  };
+
+  // Rankings
+  const rkTrxEl=document.getElementById('rankTrxEl');rkTrxEl.innerHTML='';
+  [...agg].sort((a,b)=>b.trx-a.trx).forEach((s,i)=>{
+    const p=(s.trx/GT.trx*100).toFixed(1);
+    rkTrxEl.innerHTML+=`<div class="ri" style="border-color:${CLR[i]}55"><span class="rn" style="color:${CLR[i]}">#${i+1}</span><span class="rl">${s.name}</span><span class="rv">${fmt(s.trx)}</span><span class="rp">${p}%</span></div>`;
+  });
+  rkTrxEl.innerHTML+=`<div class="rank-tot"><div class="ftl">TOTAL JUMLAH TRANSAKSI</div><div class="ftv">${fB(GT.trx)}</div><div class="fts">${fmt(GT.trx)} TRX</div></div>`;
+
+  const rkEl=document.getElementById('rankEl');rkEl.innerHTML='';
+  [...agg].sort((a,b)=>b.nom-a.nom).forEach((s,i)=>{
+    const p=(s.nom/GT.nom*100).toFixed(1);
+    rkEl.innerHTML+=`<div class="ri" style="border-color:${CLR[i]}55"><span class="rn" style="color:${CLR[i]}">#${i+1}</span><span class="rl">${s.name}</span><span class="rv">${fB(s.nom)}</span><span class="rp">${p}%</span></div>`;
+  });
+  rkEl.innerHTML+=`<div class="rank-tot"><div class="ftl">TOTAL NOMINAL TRANSAKSI</div><div class="ftv">${fB(GT.nom)}</div><div class="fts">IDR ${fmt(GT.nom)}</div></div>`;
+
+  const fbiEl=document.getElementById('fbiEl');fbiEl.innerHTML='';
+  const fbis=[...agg].filter(s=>s.fbi>0).sort((a,b)=>b.fbi-a.fbi);
+  const totF=fbis.reduce((s,x)=>s+x.fbi,0);
+  if(!fbis.length){fbiEl.innerHTML='<div style="font-size:13px;color:var(--t4);padding:20px;text-align:center">Tidak ada data FBI</div>';}
+  else{
+    fbis.forEach((s,i)=>{const p=(s.fbi/totF*100).toFixed(1);fbiEl.innerHTML+=`<div class="ri" style="border-color:${CLR[i]}55"><span class="rn" style="color:${CLR[i]}">#${i+1}</span><span class="rl">${s.name}</span><span class="rv" style="color:var(--amber2)">${fB(s.fbi)}</span><span class="rp">${p}%</span></div>`;});
+    fbiEl.innerHTML+=`<div class="rank-tot amber-tot"><div class="ftl">TOTAL FBI</div><div class="ftv">${fB(totF)}</div><div class="fts">IDR ${fmt(totF)}</div></div>`;
+  }
+
+  // Heatmap
+  window._hmActive = window._hmActive||'trx';
+  const hmFields=[{key:'trx',label:'Jumlah Transaksi'},{key:'nom',label:'Nominal Transaksi'},{key:'fbi',label:'FBI'}];
+  document.getElementById('hmTabs').innerHTML=hmFields.map(f=>`<div class="yoy-tab ${window._hmActive===f.key?'active':''}" onclick="setHmTab('${f.key}')">${f.label}</div>`).join('');
+  buildHeatmap(window._hmActive);
+
+  function buildHeatmap(field){
+    const hmYears=viewYrs.filter(yr=>svcs.reduce((s,x)=>s+(x.yr[yr]?.[field]||0),0)>0);
+    const fieldTotal=s=>viewYrs.reduce((sum,yr)=>sum+(s.yr[yr]?.[field]||0),0);
+    const topS=[...svcs].filter(s=>fieldTotal(s)>0).sort((a,b)=>fieldTotal(b)-fieldTotal(a)).slice(0,9);
+    const showCombined=isAll&&hmYears.length>1;
+    const combinedLabel=`${hmYears[0]}-${hmYears[hmYears.length-1]}`;
+    const grandCombined=svcs.reduce((sum,s)=>sum+fieldTotal(s),0)||1;
+    const totalCols=hmYears.length+(showCombined?1:0);
+    if(!topS.length||!hmYears.length){document.getElementById('hmEl').innerHTML='<div style="font-size:13px;color:var(--t4);padding:20px;text-align:center">Tidak ada data</div>';return;}
+    let h=`<div class="hm-grid" style="grid-template-columns:130px repeat(${totalCols},1fr)">
+      <div class="hm-hd" style="text-align:left">Layanan</div>
+      ${hmYears.map(yr=>`<div class="hm-hd">${yr}</div>`).join('')}
+      ${showCombined?`<div class="hm-hd" style="color:var(--indigo2);font-weight:700">${combinedLabel}</div>`:''}`;
+    topS.forEach(s=>{
+      h+=`<div class="hm-lbl">${s.name}</div>`;
+      hmYears.forEach(yr=>{
+        const yrTot=svcs.reduce((su,x)=>su+(x.yr[yr]?.[field]||0),0)||1;
+        const v=(s.yr[yr]?.[field]||0)/yrTot;
+        const intensity=Math.min(Math.round(v*700),88);
+        const iStr=intensity<10?'0'+intensity:String(intensity);
+        h+=`<div class="hm-c" title="${s.name} ${yr}: ${(v*100).toFixed(1)}%" style="background:rgba(99,102,241,.${iStr});color:${intensity>40?'var(--t1)':'var(--t3)'}">${(v*100).toFixed(1)}%</div>`;
+      });
+      if(showCombined){const v=fieldTotal(s)/grandCombined;const intensity=Math.min(Math.round(v*700),88);const iStr=intensity<10?'0'+intensity:String(intensity);h+=`<div class="hm-c" style="background:rgba(99,102,241,.${iStr});border:1px solid rgba(99,102,241,.4);color:${intensity>40?'var(--t1)':'var(--t3)'}">${(v*100).toFixed(1)}%</div>`;}
+    });
+    h+=`</div>`;
+    document.getElementById('hmEl').innerHTML=h;
+  }
+  window.setHmTab=function(field){
+    window._hmActive=field;
+    document.querySelectorAll('#hmTabs .yoy-tab').forEach(el=>el.classList.remove('active'));
+    event.target.classList.add('active');
+    buildHeatmap(field);
+  };
+
+  // Footer
+  document.getElementById('ftInfo').innerHTML=
+    `Sumber: ${fname} &nbsp;·&nbsp; ${svcs.length} Layanan &nbsp;·&nbsp; ${allYrs.length} Tahun &nbsp;·&nbsp; ${fmt(GT.trx)} TRX<br>`+
+    `Generated: ${new Date().toLocaleString('id-ID',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// Anti-copy deterrents
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('dragstart',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if((e.ctrlKey&&['s','u','p'].includes(k))||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k))||k==='f12'){e.preventDefault();return false;}
+});
+
+// Boot
+render('ALL');
+</script>
+</body>
+</html>
